@@ -13,12 +13,13 @@ import br.com.alura.panucci.ui.theme.PanucciTheme
 
 class BottomAppBarItem(
     val label: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val route: String,
 )
 
 @Composable
 fun PanucciBottomAppBar(
-    item: BottomAppBarItem,
+    item: BottomAppBarItem?,
     modifier: Modifier = Modifier,
     items: List<BottomAppBarItem> = emptyList(),
     onItemChange: (BottomAppBarItem) -> Unit = {}
@@ -30,7 +31,7 @@ fun PanucciBottomAppBar(
             NavigationBarItem(
                 icon = { Icon(icon, contentDescription = label) },
                 label = { Text(label) },
-                selected = item.label == label,
+                selected = item?.label == label,
                 onClick = {
                     onItemChange(it)
                 }
