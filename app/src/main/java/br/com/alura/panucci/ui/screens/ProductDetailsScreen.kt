@@ -22,6 +22,7 @@ import coil.compose.AsyncImage
 @Composable
 fun ProductDetailsScreen(
     product: Product,
+    onNavigateToCheckout: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -50,7 +51,7 @@ fun ProductDetailsScreen(
             Text(product.price.toPlainString(), fontSize = 18.sp)
             Text(product.description)
             Button(
-                onClick = { /*TODO*/ },
+                onClick = { onNavigateToCheckout()},
                 Modifier
                     .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
