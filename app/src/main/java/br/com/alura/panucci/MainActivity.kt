@@ -18,6 +18,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import br.com.alura.panucci.navigation.AppDestination
 import br.com.alura.panucci.navigation.BottomAppBarItem
+import br.com.alura.panucci.navigation.PanucciNaviHost
 import br.com.alura.panucci.navigation.bottomAppBarItems
 import br.com.alura.panucci.sampledata.sampleProducts
 import br.com.alura.panucci.ui.components.PanucciBottomAppBar
@@ -76,63 +77,7 @@ class MainActivity : ComponentActivity() {
                         isShowBottomBar = showBars,
                         isShowFab = isShowFab
                     ) {
-                        NavHost(
-                            navController = naviController,
-                            startDestination = AppDestination.Highlight.route,
-                        ) {
-                            composable(AppDestination.Highlight.route) {
-                                HighlightsListScreen(
-                                    products = sampleProducts,
-                                    onNavigateToCheckout = {
-                                        naviController.navigate(AppDestination.Checkout.route)
-                                    },
-                                    onNavigateToDetails = { product ->
-                                        naviController.navigate("${AppDestination.ProductDetails.route}/${product.id}")
-                                    }
-                                )
-                            }
-                            composable(AppDestination.Menu.route) {
-                                MenuListScreen(
-                                    products = sampleProducts,
-                                    onNavigateToDetails = { product ->
-                                        naviController.navigate("${AppDestination.ProductDetails.route}/${product.id}")
-                                    }
-                                )
-                            }
-                            composable(AppDestination.Drinks.route) {
-                                DrinksListScreen(
-                                    products = sampleProducts,
-                                    onNavigateToDetails = { product ->
-                                        naviController.navigate("${AppDestination.ProductDetails.route}/${product.id}")
-                                    }
-                                )
-                            }
-                            composable("${AppDestination.ProductDetails.route}/{productId}") { backStackEntry ->
-                                val id = backStackEntry.arguments?.getString("productId")
-                                sampleProducts.find {
-                                    it.id == id
-                                }?.let { product ->
-                                    ProductDetailsScreen(
-                                        product = product,
-                                        onNavigateToCheckout = {
-                                            naviController.navigate(AppDestination.Checkout.route)
-                                        }
-                                    )
-                                } ?: LaunchedEffect(Unit) {
-                                    naviController.navigateUp()
-                                }
-
-                            }
-                            composable(AppDestination.Checkout.route) {
-                                CheckoutScreen(
-                                    products = sampleProducts,
-                                    onPopBackStack = {
-                                        naviController.navigateUp()
-                                    }
-                                )
-                            }
-
-                        }
+                        PanucciNaviHost(naviController)
                     }
                 }
             }
