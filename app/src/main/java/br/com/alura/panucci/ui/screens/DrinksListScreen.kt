@@ -19,16 +19,19 @@ import br.com.alura.panucci.sampledata.sampleProducts
 import br.com.alura.panucci.ui.components.DrinkProductCard
 import br.com.alura.panucci.ui.theme.PanucciTheme
 import br.com.alura.panucci.ui.theme.caveatFont
+import br.com.alura.panucci.ui.uistate.DrinksListUiState
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DrinksListScreen(
     modifier: Modifier = Modifier,
     title: String = "Bebidas",
-    products: List<Product> = emptyList(),
     onNavigateToDetails: (Product) -> Unit = {},
     columns: Int = 2,
+    uiState: DrinksListUiState = DrinksListUiState(),
 ) {
+    val products = uiState.products
     Column(
         modifier
             .fillMaxSize()
@@ -48,7 +51,6 @@ fun DrinksListScreen(
             columns = StaggeredGridCells.Fixed(columns),
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
-//            verticalArrangement = Arrangement.spacedBy(16.dp),
             verticalItemSpacing = 16.dp,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -70,8 +72,7 @@ fun DrinksListScreenPreview() {
     PanucciTheme {
         Surface {
             DrinksListScreen(
-                products = sampleProducts,
-                title = "Bebidas"
+                uiState = DrinksListUiState(products = sampleProducts)
             )
         }
     }
