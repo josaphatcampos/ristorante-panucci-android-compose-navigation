@@ -12,17 +12,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import br.com.alura.panucci.navigation.AppDestination
-import br.com.alura.panucci.navigation.BottomAppBarItem
-import br.com.alura.panucci.navigation.PanucciNaviHost
-import br.com.alura.panucci.navigation.bottomAppBarItems
-import br.com.alura.panucci.sampledata.sampleProducts
+import androidx.navigation.navOptions
+import br.com.alura.panucci.navigation.PanucciNavHost
+import br.com.alura.panucci.navigation.drinkRoute
+import br.com.alura.panucci.navigation.highlightListRoute
+import br.com.alura.panucci.navigation.menuRoute
+import br.com.alura.panucci.navigation.navigateToCheckout
+import br.com.alura.panucci.navigation.navigateToDrink
+import br.com.alura.panucci.navigation.navigateToHighlightsList
+import br.com.alura.panucci.navigation.navigateToMenu
+import br.com.alura.panucci.ui.components.BottomAppBarItem
 import br.com.alura.panucci.ui.components.PanucciBottomAppBar
-import br.com.alura.panucci.ui.screens.*
+import br.com.alura.panucci.ui.components.bottomAppBarItems
 import br.com.alura.panucci.ui.theme.PanucciTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,8 +33,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val naviController = rememberNavController()
-            val currentBackStackEntryAsState by naviController.currentBackStackEntryAsState()
+            val navController = rememberNavController()
+            val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
             val currentDestination = currentBackStackEntryAsState?.destination
 
             PanucciTheme {
@@ -39,45 +42,62 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var selectedItem by remember(currentDestination) {
-                        val item = currentDestination?.let { currentDestination ->
-                            bottomAppBarItems.find {
-                                it.destination.route == currentDestination.route
-                            } ?: bottomAppBarItems.first()
+                    val currentRoute = currentDestination?.route
+                    val selectedItem by remember(currentDestination) {
+                        val item = when (currentRoute) {
+                            highlightListRoute -> BottomAppBarItem.HighlightsList
+                            menuRoute -> BottomAppBarItem.Menu
+                            drinkRoute -> BottomAppBarItem.Drinks
+                            else -> BottomAppBarItem.HighlightsList
                         }
                         mutableStateOf(item)
                     }
 
-                    val showBars = currentDestination?.let {
-                        bottomAppBarItems.find { currentDestination ->
-                            it.route == currentDestination.destination.route
-                        }
-                    } != null
+                    val showBars = when (currentRoute) {
+                        highlightListRoute, menuRoute, drinkRoute -> true
+                        else -> false
+                    }
 
-                    val isShowFab = when (currentDestination?.route) {
-                        AppDestination.Menu.route, AppDestination.Drinks.route -> true
+                    val isShowFab = when (currentRoute) {
+                        menuRoute, drinkRoute -> true
                         else -> false
                     }
 
                     PanucciApp(
                         bottomAppBarItemSelected = selectedItem,
-                        onBottomAppBarItemSelectedChange = {
-                            val route = it.destination.route
-                            naviController.navigate(route) {
-                                launchSingleTop = true
-                                popUpTo(route) {
-                                    inclusive = true
-                                }
+                        onBottomAppBarItemSelectedChange = { item ->
+
+                            val (route, navigate) = when (item) {
+                                BottomAppBarItem.HighlightsList -> Pair(
+                                    highlightListRoute,
+                                    navController::navigateToHighlightsList
+                                )
+
+                                BottomAppBarItem.Menu -> Pair(
+                                    menuRoute,
+                                    navController::navigateToMenu
+                                )
+
+                                BottomAppBarItem.Drinks -> Pair(
+                                    drinkRoute,
+                                    navController::navigateToDrink
+                                )
                             }
+                            val navOptions = navOptions {
+                                launchSingleTop = true
+                                popUpTo(highlightListRoute)
+                            }
+
+                            navigate(navOptions)
                         },
                         onFabClick = {
-                            naviController.navigate(AppDestination.Checkout.route)
+                            navController.navigateToCheckout()
                         },
                         isShowTopBar = showBars,
                         isShowBottomBar = showBars,
                         isShowFab = isShowFab
                     ) {
-                        PanucciNaviHost(naviController)
+                        PanucciNavHost(navController)
                     }
                 }
             }
